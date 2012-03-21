@@ -1,0 +1,201 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>常用排序算法</title>
+<script type="text/javascript">
+function startSort(){
+	var sortType = document.getElementById("sortType").value;
+	var textInput = document.getElementById("textInput").value;
+
+	
+	var array = textInput.value==""?[]:textInput.split(",");
+	
+	var lastChar = textInput.substring(textInput.length-1);
+	if(lastChar == ","){
+		array.length = array.length - 1;
+	} 
+	
+	var nanExist = false;
+	
+	for(var i = 0; i < array.length; i++){
+		if(isNaN(array[i])){
+			nanExist = true;
+			break;
+		}
+		array[i] = parseInt(array[i]);
+	}
+    
+	if(nanExist){
+		 document.getElementById("textOutput").value = "输入格式不正确，请输入纯数字并以逗号隔开";
+		 return;
+	}
+	
+	eval("array." + sortType + "Sort()");
+    document.getElementById("textOutput").value = array.join("\n");
+	
+}
+
+Array.prototype.swap  = function(i,j){
+	var temp = this[i];
+	this[i] = this[j];
+	this[j] = temp;
+}
+
+Array.prototype.bubbleSort = function(){ 
+	for(var i = this.length - 1;i>0;i--){
+		for(var j = 0; j < i; j++){
+			if(this[j] > this[j+1]){
+				this.swap(j,j+1);
+			}
+		}
+	}
+}
+
+Array.prototype.selectSort = function(){
+	for(var i = 0;i<this.length;i++){
+		var index = i;
+		for(var j = i+1; j<this.length; j++){
+			if(this[j] < this[index]){
+				index = j;
+			}
+		}
+		this.swap(i,index);
+	}
+}
+
+Array.prototype.insertSort = function(){
+	for(var i = 1;i<this.length;i++){
+		var j = i;
+		var temp = this[i];
+		while(j > 0 && this[j-1] > temp){
+			this[j] = this[j-1];
+			j--;
+		}
+		this[j] = temp;	
+	}
+}
+
+Array.prototype.binaryInsertSort = function(){
+	for(var i = 1;i<this.length;i++){
+		var left = 0;
+		var right = i - 1;
+		var temp = this[i];  
+		while(left <= right){
+			var middle = Math.floor((left + right)/2); 		
+			if(temp < this[middle]){
+				right = middle - 1;
+			}else{
+				left = middle + 1;
+			}
+		}
+		for(var k = i-1;k>=left;k--){
+			this[k+1] = this[k];
+		}
+		this[left] = temp;
+	}
+}
+
+Array.prototype.shellSort = function(){
+	var gap =  Math.floor(this.length/2);
+	while(gap){
+		for(var i = gap;i<this.length;i++){
+			var temp = this[i];
+			var j = i;
+			while(j>=gap && temp<this[j-gap]){
+				this[j] = this[j-gap];
+				j -= gap;
+			}
+			this[j] = temp;
+		}
+		gap = (gap ==2)?1:Math.floor(gap/2);
+	}
+}
+
+Array.prototype.quickSort = function(s,e){
+	if (s == null) s = 0;       
+	if (e == null) e = this.length - 1;        
+	if (s >= e) return;               
+	var index = s - 1;        
+	for (var i = s; i <= e; ++i){           
+		if (this[i] <= this[e]){ 
+	  		this.swap(i, ++index);
+		}       
+	}        
+	this.quickSort(s, index - 1);        
+	this.quickSort(index + 1, e);
+} 
+
+Array.prototype.mergeSort = function(s,e,b){
+	if(s == null){
+		s = 0;
+    }
+	if(e == null){
+		e = this.length -1;
+	}
+	if(b == null){
+		b = new Array(this.length);
+	}
+	if(s >= e){
+		return;
+	}
+	var m = (s+e) >> 1;
+	this.mergeSort(s,m,b);
+	this.mergeSort(m+1,e,b);
+	for(var i = s,j = s,k = m+1;i<=e;i++){
+		b[i] = this[( k>e || j<=m && this[j]<this[k]) ? j++ : k++];
+	} 
+	for(var i  = s; i <= e; i++){
+		this[i] = b[i];
+	}
+}
+
+Array.prototype.heapSort = function(){        
+	for (var i = 1; i < this.length; ++i){            
+		for (var j = i, k = (j - 1) >> 1; k >= 0; j = k, k = (k - 1) >> 1){                
+			if (this[k] >= this[j]) break;                
+			this.swap(j, k);            
+		}        
+	}        
+	for (var i = this.length - 1; i > 0; --i){            
+		this.swap(0, i);            
+		for (var j = 0, k = (j + 1) << 1; k <= i; j = k, k = (k + 1) << 1){
+			if (k == i || this[k] < this[k - 1]) --k;                
+			if (this[k] <= this[j]) break;                
+			this.swap(j, k);            
+		}        
+	}    
+	}
+
+</script>
+</head>
+
+<body>
+<div class="mainBox">
+	<div class="inputBox">
+		<h3>输入要排序的数字：</h3>
+		<div>  
+			<select id="sortType">
+				<option value="bubble">冒泡排序</option>
+				<option value="quick">快速排序</option>
+				<option value="select">直接选择排序</option>
+				<option value="insert">直接插入排序</option>
+				<option value="binaryInsert">折半插入排序</option>
+				<option value="shell">谢尔排序</option>
+				<option value="quick">快速排序(递归)</option>
+				<option value="merge">归并排序</option>
+				<option value="heap">堆排序</option>
+			</select>  
+			<button onclick="startSort()">确定</button>
+		</div>
+		<div>
+			<textarea id="textInput"  style="width:500px;height:200px;"></textarea>
+		</div>
+	</div>
+	<div class="outputBox">
+		<h3>排序结果：</h3>
+		<textarea id="textOutput" style="width:500px;height:200px;"></textarea>
+	</div>
+</div>
+</body>
+</html>
